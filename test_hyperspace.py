@@ -37,7 +37,6 @@ class MicrodataTest(unittest.TestCase):
         # When - We visit the users list page
         page = hyperspace.jump('http://example.com/users/')
         # Then - We should find there are some "user" links
-        print page.links
         self.assertIn('user', page.links)
 
     def test_follows_links(self):
