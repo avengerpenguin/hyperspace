@@ -1,0 +1,7 @@
+{
+  "@context": {
+    "@vocab": "http://schema.org/"
+  },
+  "@id": "http://example.com/users/fiona#id",
+  "name": "Fiona Bennett"
+}

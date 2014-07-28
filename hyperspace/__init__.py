@@ -18,7 +18,8 @@ class Page(object):
         self.url = response.url
 
         self.data = Graph()
-        self.data.parse(data=response.text, format='html')
+        self.data.parse(data=response.text,
+                        format=mime_to_rdflib_format(response.headers['Content-Type']))
 
         soup = BeautifulSoup(response.text)
 
@@ -35,6 +36,13 @@ class Page(object):
                     absolute_href = urlparse.urljoin(self.url, a_tag['href'])
                     link = Link(absolute_href)
                     self.links[rel].append(link)
+
+
+def mime_to_rdflib_format(mime):
+    return {
+        "text/html": 'html',
+        'application/ld+json': 'json-ld'
+    }[mime]
 
 
 
