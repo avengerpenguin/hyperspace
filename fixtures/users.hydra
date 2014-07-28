@@ -1,0 +1,11 @@
+{
+  "@context": "http://www.w3.org/ns/hydra/context.jsonld",
+  "@type": "Collection",
+  "@id": "http://example.com/users/",
+  "http://example.com/relations/user": [
+    {
+      "@id": "http://example.com/users/fiona",
+      "@type": "http://schema.org/Person"
+    }
+  ]
+}
