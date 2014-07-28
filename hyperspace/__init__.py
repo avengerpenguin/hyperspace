@@ -1,9 +1,12 @@
 import collections
-from rdflib import Graph
+from rdflib import Graph, URIRef
 import requests
 from bs4 import BeautifulSoup
 import urlparse
+from rdflib.namespace import Namespace, RDF
 
+
+HYDRA = Namespace('http://www.w3.org/ns/hydra/core#')
 
 class Link(object):
     def __init__(self, href):
@@ -15,14 +18,30 @@ class Link(object):
 
 class Page(object):
     def __init__(self, response):
+        self.response = response
         self.url = response.url
+        self.content_type = response.headers['Content-Type']
+        self.extract_data()
+        self.extract_links()
 
+    def extract_data(self):
         self.data = Graph()
-        self.data.parse(data=response.text,
-                        format=mime_to_rdflib_format(response.headers['Content-Type']))
+        self.data.parse(data=self.response.text)
 
-        soup = BeautifulSoup(response.text)
+    def extract_links(self, _):
+        pass
 
+
+class HTMLPage(Page):
+    def __init__(self, response):
+        super(HTMLPage, self).__init__(response)
+
+    def extract_data(self):
+        self.data = Graph()
+        self.data.parse(data=self.response.text, format='html')
+
+    def extract_links(self):
+        soup = BeautifulSoup(self.response.text)
         # We use a dictionary to allow lookup of links by rel
         self.links = collections.defaultdict(list)
         # Find all <a/> tags
@@ -38,13 +57,28 @@ class Page(object):
                     self.links[rel].append(link)
 
 
-def mime_to_rdflib_format(mime):
-    return {
-        "text/html": 'html',
-        'application/ld+json': 'json-ld'
-    }[mime]
+class HydraPage(Page):
+    def __init__(self, response):
+        super(HydraPage, self).__init__(response)
 
+    def extract_data(self):
+        self.data = Graph()
+        self.data.parse(data=self.response.text, format='json-ld', identifier=self.url)
+
+    def extract_links(self):
+        self.links = collections.defaultdict(list)
+        for p, o in self.data.predicate_objects(URIRef(self.url)):
+            if isinstance(o, URIRef):
+                link = Link(unicode(o))
+                self.links[unicode(p)].append(link)
+
+def mime_to_page(mime):
+    return {
+        "text/html": HTMLPage,
+        'application/ld+json': HydraPage,
+        }[mime]
 
 
 def jump(url):
-    return Page(requests.get(url))
+    response = requests.get(url)
+    return mime_to_page(response.headers['Content-Type'])(response)

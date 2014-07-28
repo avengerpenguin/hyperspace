@@ -57,7 +57,7 @@ class LOTest(HypermediaBaseTest):
         # When - We visit the users list page
         page = hyperspace.jump('http://example.com/users/')
         # Then - We should find there are some "user" links
-        self.assertIn('user', page.links)
+        self.assertIn('http://example.com/relations/user', page.links)
 
     def test_follows_links(self):
         # Given - Information we know should be held about a user
@@ -67,7 +67,7 @@ class LOTest(HypermediaBaseTest):
         # When - We visit the users list page
         page = hyperspace.jump('http://example.com/users/')
         # And - Follow the link to the user in question
-        page = page.links['user'][0].follow()
+        page = page.links['http://example.com/relations/user'][0].follow()
         # Then - We should find the page URL has changed
         self.assertEqual('http://example.com/users/fiona', page.url)
 
@@ -87,9 +87,14 @@ class HTMLTest(LOTest):
                           content_type='text/html')
 
 
-class HydraTest(HypermediaBaseTest):
+class HydraTest(LOTest):
     def setUp(self):
         super(HydraTest, self).setUp()
+
+        with open('./fixtures/users.hydra', 'rb') as fixture:
+            responses.add(responses.GET, 'http://example.com/users/',
+                          body=fixture.read(), status=200,
+                          content_type='application/ld+json')
 
         with open('./fixtures/fiona.hydra', 'rb') as fixture:
             responses.add(responses.GET, 'http://example.com/users/fiona',
