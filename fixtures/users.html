@@ -10,8 +10,13 @@
             editing users.
         </p>
         <h2>Add new user</h2>
-        <form method="post">
+        <form method="post" action="/users">
             <input name="name" value="" type="text"/>
+            <input type="submit"/>
+        </form>
+        <h2>Search for user</h2>
+        <form method="get" action="/users/search">
+            <input name="q" value="" type="text"/>
             <input type="submit"/>
         </form>
         <h2>View user</h2>

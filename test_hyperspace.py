@@ -72,7 +72,31 @@ class LOTest(HypermediaBaseTest):
         self.assertEqual('http://example.com/users/fiona', page.url)
 
 
-class HTMLTest(LOTest):
+class LTTest(HypermediaBaseTest):
+    def __init__(self, *args, **kwargs):
+        super(LTTest, self).__init__(*args, **kwargs)
+        self.helper = None
+
+        # Kludge alert: We want this class to carry test cases without being run
+        # by the unit test framework, so the `run' method is overridden to do
+        # nothing.  But in order for sub-classes to be able to do something when
+        # run is invoked, the constructor will rebind `run' from TestCase.
+        if self.__class__ != LTTest:
+            # Rebind `run' from the parent class.
+            self.run = unittest.TestCase.run.__get__(self, self.__class__)
+        else:
+            self.run = lambda self, *args, **kwargs: None
+
+    def test_performs_templated_query(self):
+        # Given - We are on the users home page
+        page = hyperspace.jump('http://example.com/users/')
+        # When - We fill in a search form on that page
+        results_page = page.queries['search'][0].build({'q': 'fiona'}).submit()
+        # Then - We should get to a results page for that search
+        self.assertIn('http://example.com/users/fioma', [link.href for link in results_page.links])
+
+
+class HTMLTest(LOTest, LTTest):
     def setUp(self):
         super(HTMLTest, self).setUp()
 
@@ -86,8 +110,13 @@ class HTMLTest(LOTest):
                           body=fixture.read(), status=200,
                           content_type='text/html')
 
+        with open('./fixtures/results.html', 'rb') as fixture:
+            responses.add(responses.GET, 'http://example.com/users/search?q=fiona',
+                          body=fixture.read(), status=200,
+                          content_type='text/html')
 
-class HydraTest(LOTest):
+
+class HydraTest(HypermediaBaseTest):
     def setUp(self):
         super(HydraTest, self).setUp()
 

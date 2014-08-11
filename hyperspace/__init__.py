@@ -23,12 +23,16 @@ class Page(object):
         self.content_type = response.headers['Content-Type']
         self.extract_data()
         self.extract_links()
+        self.extract_queries()
 
     def extract_data(self):
         self.data = Graph()
         self.data.parse(data=self.response.text)
 
-    def extract_links(self, _):
+    def extract_links(self):
+        pass
+
+    def extract_queries(self):
         pass
 
 
@@ -41,7 +45,7 @@ class HTMLPage(Page):
         self.data.parse(data=self.response.text, format='html')
 
     def extract_links(self):
-        soup = BeautifulSoup(self.response.text)
+        self.soup = BeautifulSoup(self.response.text)
         # We use a dictionary to allow lookup of links by rel
         self.links = collections.defaultdict(list)
         # Find all <a/> tags
@@ -56,6 +60,13 @@ class HTMLPage(Page):
                     link = Link(absolute_href)
                     self.links[rel].append(link)
 
+    def extract_queries(self):
+        self.queries = {}
+        for form_tag in self.soup.find_all('form'):
+            if 'rel' not in form_tag.attrs or form_tag.attrs['method'].lower() == 'get':
+                if 'name' in form_tag.attrs:
+                    name = form_tag.attrs['name']
+                    self.queries[name] = Form()
 
 class HydraPage(Page):
     def __init__(self, response):
