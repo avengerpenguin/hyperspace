@@ -89,7 +89,7 @@ class HTMLPage(Page):
     def extract_queries(self):
         self.queries = collections.defaultdict(list)
         for form_tag in self.soup.find_all('form'):
-            if 'rel' not in form_tag.attrs or form_tag.attrs['method'].lower() == 'get':
+            if 'method' not in form_tag.attrs or form_tag.attrs['method'].lower() == 'get':
                 if 'name' in form_tag.attrs:
                     name = form_tag.attrs['name']
                     params = {}
