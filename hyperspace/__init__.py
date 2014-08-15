@@ -1,4 +1,5 @@
 import collections
+import re
 from rdflib import Graph, URIRef
 import requests
 from bs4 import BeautifulSoup
@@ -40,7 +41,8 @@ class Query(object):
         return self
 
     def submit(self):
-        return jump(self.href + '?' + '&'.join([key + '=' + value for key, value in self.params.iteritems()]))
+        return jump(self.href + '?' + '&'.join(
+            [key + '=' + value for key, value in self.params.iteritems()]))
 
 class Page(object):
     def __init__(self, response):
@@ -75,16 +77,14 @@ class HTMLPage(Page):
         # We use a dictionary to allow lookup of links by rel
         self.links = FilterableList()
         # Find all <a/> tags
-        for a_tag in self.soup.find_all('a'):
-            # For now, we only consider <a/> tags with rel attributes
-            if 'rel' in a_tag.attrs:
-                # The rel attribute can be multivalued, so it's probably
-                # alright to duplicate a link instance against multiple rel keys
-                for rel in a_tag['rel']:
-                    # Allow for href values to be relative...
-                    absolute_href = urlparse.urljoin(self.url, a_tag['href'])
-                    link = Link(rel, absolute_href)
-                    self.links.append(link)
+        for a_tag in self.soup.find_all('a', attrs={'rel': re.compile('.+')}):
+            # The rel attribute can be multivalued, so it's probably
+            # alright to duplicate a link instance against multiple rel keys
+            for rel in a_tag['rel']:
+                # Allow for href values to be relative...
+                absolute_href = urlparse.urljoin(self.url, a_tag['href'])
+                link = Link(rel, absolute_href)
+                self.links.append(link)
 
     def extract_queries(self):
         self.queries = collections.defaultdict(list)
