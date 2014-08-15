@@ -57,7 +57,7 @@ class LOTest(HypermediaBaseTest):
         # When - We visit the users list page
         page = hyperspace.jump('http://example.com/users/')
         # Then - We should find there are some "user" links
-        self.assertIn('http://example.com/relations/user', page.links)
+        self.assertIn('http://example.com/relations/user', page.links.keys())
 
     def test_follows_links(self):
         # Given - Information we know should be held about a user
@@ -93,7 +93,7 @@ class LTTest(HypermediaBaseTest):
         # When - We fill in a search form on that page
         results_page = page.queries['search'][0].build({'q': 'fiona'}).submit()
         # Then - We should get to a results page for that search
-        self.assertIn('http://example.com/users/fioma', [link.href for link in results_page.links])
+        self.assertIn('http://example.com/users/fiona', [link.href for link in results_page.links])
 
 
 class HTMLTest(LOTest, LTTest):
@@ -113,7 +113,7 @@ class HTMLTest(LOTest, LTTest):
         with open('./fixtures/results.html', 'rb') as fixture:
             responses.add(responses.GET, 'http://example.com/users/search?q=fiona',
                           body=fixture.read(), status=200,
-                          content_type='text/html')
+                          content_type='text/html', match_querystring=True)
 
 
 class HydraTest(HypermediaBaseTest):
