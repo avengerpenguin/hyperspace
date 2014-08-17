@@ -1,5 +1,6 @@
 import unittest
 
+import httpretty
 from rdflib import URIRef, Literal
 import hyperspace
 import responses
@@ -96,6 +97,29 @@ class LTTest(HypermediaBaseTest):
         self.assertIn('http://example.com/users/fiona', [link.href for link in results_page.links])
 
 
+class LNTest(HypermediaBaseTest):
+    def __init__(self, *args, **kwargs):
+        super(LNTest, self).__init__(*args, **kwargs)
+        self.helper = None
+
+        # Kludge alert: We want this class to carry test cases without being run
+        # by the unit test framework, so the `run' method is overridden to do
+        # nothing.  But in order for sub-classes to be able to do something when
+        # run is invoked, the constructor will rebind `run' from TestCase.
+        if self.__class__ != LNTest:
+            # Rebind `run' from the parent class.
+            self.run = unittest.TestCase.run.__get__(self, self.__class__)
+        else:
+            self.run = lambda self, *args, **kwargs: None
+
+    def sends_nonidempotent_update(self):
+        # Given - We are on the users home page
+        page = hyperspace.jump('http://example.com/users/')
+        # When - We fill in a search form on that page
+        new_user_page = page.templates['user'][0].build({'name': 'Dennis Felt'}).submit()
+
+
+
 class HTMLTest(LOTest, LTTest):
     def setUp(self):
         super(HTMLTest, self).setUp()
@@ -116,9 +140,14 @@ class HTMLTest(LOTest, LTTest):
                           content_type='text/html', match_querystring=True)
 
 
-class HydraTest(HypermediaBaseTest):
+class HydraTest(LOTest):
     def setUp(self):
         super(HydraTest, self).setUp()
+
+        httpretty.enable()
+
+        with open('./fixtures/context.jsonld') as context:
+            httpretty.register_uri(httpretty.GET, 'http://www.w3.org/ns/hydra/context.jsonld', body=context.read())
 
         with open('./fixtures/users.hydra', 'rb') as fixture:
             responses.add(responses.GET, 'http://example.com/users/',
@@ -130,6 +159,9 @@ class HydraTest(HypermediaBaseTest):
                           body=fixture.read(), status=200,
                           content_type='application/ld+json')
 
+    def tearDown(self):
+        super(HydraTest, self).tearDown()
+        httpretty.disable()
 
 if __name__ == '__main__':
     unittest.main()

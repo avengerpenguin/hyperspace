@@ -116,10 +116,10 @@ class HydraPage(Page):
         self.data.parse(data=self.response.text, format='json-ld', identifier=self.url)
 
     def extract_links(self):
-        self.links = collections.defaultdict(list)
+        self.links = FilterableList()
         for p, o in self.data.predicate_objects(URIRef(self.url)):
             if isinstance(o, URIRef):
-                link = Link(unicode(o). unicode(o))
+                link = Link(unicode(p), unicode(o))
                 self.links.append(link)
 
 def mime_to_page(mime):
