@@ -22,8 +22,8 @@ ifneq ($(wildcard test-requirements.txt),)
 	venv/bin/pip install -r test-requirements.txt
 endif
 
-test: venv/bin/python deps test_hyperspace.py
-	venv/bin/python test_hyperspace.py
+test: venv/bin/python deps
+	venv/bin/nosetests
 
 dist: test
 	venv/bin/python setup.py sdist
