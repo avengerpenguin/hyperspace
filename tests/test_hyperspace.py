@@ -129,7 +129,7 @@ class HTMLTest(LOTest, LTTest):
                           body=fixture.read(), status=200,
                           content_type='text/html')
 
-        with open('./fixtures/fiona.html', 'rb') as fixture:
+        with open('../fixtures/fiona.html', 'rb') as fixture:
             responses.add(responses.GET, 'http://example.com/users/fiona',
                           body=fixture.read(), status=200,
                           content_type='text/html')
