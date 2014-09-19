@@ -3,7 +3,6 @@ import unittest
 import httpretty
 from rdflib import URIRef, Literal
 import hyperspace
-import responses
 
 
 class HypermediaBaseTest(unittest.TestCase):
@@ -22,11 +21,9 @@ class HypermediaBaseTest(unittest.TestCase):
             self.run = lambda self, *args, **kwargs: None
 
     def setUp(self):
-        responses.start()
-
-    def tearDown(self):
-        responses.stop()
-        responses.reset()
+        httpretty.enable()
+        self.addCleanup(httpretty.disable)
+        self.addCleanup(httpretty.reset)
 
     def test_finds_item_with_basic_attributes(self):
         # Given
@@ -112,56 +109,69 @@ class LNTest(HypermediaBaseTest):
         else:
             self.run = lambda self, *args, **kwargs: None
 
-    def sends_nonidempotent_update(self):
+    def test_sends_nonidempotent_update(self):
         # Given - We are on the users home page
         page = hyperspace.jump('http://example.com/users/')
         # When - We fill in a search form on that page
-        new_user_page = page.templates['user'][0].build({'name': 'Dennis Felt'}).submit()
+        page.templates['newuser'][0].build({'name': 'Dennis Felt'}).submit()
+        # Then - A POST is received
+        self.assertEqual(httpretty.core.httpretty.latest_requests[-2].body, 'name=Dennis+Felt')
 
+    def test_handles_redirect_after_update(self):
+        fact = (URIRef('http://example.com/users/dennis#id'),
+                URIRef('http://schema.org/name'),
+                Literal('Dennis Felt'))
+        page = hyperspace.jump('http://example.com/users/')        
+        page = page.templates['newuser'][0].build({'name': 'Dennis Felt'}).submit()
+        # Expect to be magically redirected to the new user's page
+        self.assertIn(fact, page.data)
+        
 
-
-class HTMLTest(LOTest, LTTest):
+class HTMLTest(LOTest, LTTest, LNTest):
     def setUp(self):
         super(HTMLTest, self).setUp()
 
         with open('./fixtures/users.html', 'rb') as fixture:
-            responses.add(responses.GET, 'http://example.com/users/',
-                          body=fixture.read(), status=200,
-                          content_type='text/html')
+            httpretty.register_uri(httpretty.GET, 'http://example.com/users/',
+                               body=fixture.read(), content_type='text/html')
 
-        with open('../fixtures/fiona.html', 'rb') as fixture:
-            responses.add(responses.GET, 'http://example.com/users/fiona',
-                          body=fixture.read(), status=200,
-                          content_type='text/html')
+        with open('./fixtures/fiona.html', 'rb') as fixture:
+            httpretty.register_uri(httpretty.GET, 'http://example.com/users/fiona',
+                                   body=fixture.read(), content_type='text/html')
+
+        with open('./fixtures/dennis.html', 'rb') as fixture:
+            httpretty.register_uri(httpretty.GET, 'http://example.com/users/dennis',
+                                   body=fixture.read(), content_type='text/html')
 
         with open('./fixtures/results.html', 'rb') as fixture:
-            responses.add(responses.GET, 'http://example.com/users/search?q=fiona',
-                          body=fixture.read(), status=200,
+            httpretty.register_uri(httpretty.GET, 'http://example.com/users/search?q=fiona',
+                          body=fixture.read(),
                           content_type='text/html', match_querystring=True)
+
+        httpretty.register_uri(httpretty.POST, 'http://example.com/users',
+                               status=201, location='http://example.com/users/dennis')
 
 
 class HydraTest(LOTest):
     def setUp(self):
         super(HydraTest, self).setUp()
 
-        httpretty.enable()
-
         with open('./fixtures/context.jsonld') as context:
-            httpretty.register_uri(httpretty.GET, 'http://www.w3.org/ns/hydra/context.jsonld', body=context.read())
+            httpretty.register_uri(
+                httpretty.GET,
+                'http://www.w3.org/ns/hydra/context.jsonld',
+                body=context.read())
 
         with open('./fixtures/users.hydra', 'rb') as fixture:
-            responses.add(responses.GET, 'http://example.com/users/',
-                          body=fixture.read(), status=200,
-                          content_type='application/ld+json')
+            httpretty.register_uri(httpretty.GET, 'http://example.com/users/',
+                                   body=fixture.read(),
+                                   content_type='application/ld+json')
 
         with open('./fixtures/fiona.hydra', 'rb') as fixture:
-            responses.add(responses.GET, 'http://example.com/users/fiona',
-                          body=fixture.read(), status=200,
-                          content_type='application/ld+json')
+            httpretty.register_uri(httpretty.GET, 'http://example.com/users/fiona',
+                                   body=fixture.read(),
+                                   content_type='application/ld+json')
 
-    def tearDown(self):
-        super(HydraTest, self).tearDown()
-        httpretty.disable()
 
 if __name__ == '__main__':
     unittest.main()
