@@ -20,6 +20,9 @@ class Link(object):
     def follow(self):
         return hyperspace.jump(self.href)
 
+    def __str__(self):
+        return '[{name}]({href})'.format(name=self.name, href=self.href)
+
 
 class Query(object):
     def __init__(self, name, href, params):
@@ -42,6 +45,11 @@ class Query(object):
         return hyperspace.jump(self.href + '?' + '&'.join(
             [key + '=' + value for key, value in self.params.iteritems()]))
 
+    def __str__(self):
+        flat_params = ', '.join([u'{name}={value}'.format(name=name, value=value) for name, value in self.params.iteritems()])
+
+        return u'[{name}]({href}){{{params}}}'.format(
+            name=self.name, href=self.href, params=flat_params)
 
 class Template(object):
     def __init__(self, name, href, params, content_type):
@@ -57,6 +65,12 @@ class Template(object):
 
     def submit(self):
         return hyperspace.send(self.href, self.params, self.content_type)
+
+    def __str__(self):
+        flat_params = u', '.join([u'{name}={value}'.format(name=unicode(name), value=unicode(value)) for name, value in self.params.iteritems()])
+
+        return u'[{name}]({href}){{{params}}}'.format(
+            name=self.name, href=self.href, params=flat_params)
 
 
 class Page(object):
@@ -77,7 +91,14 @@ class Page(object):
         self.links = FilterableList()
 
     def extract_queries(self):
-        self.queries = collections.defaultdict(list)
+        self.queries = FilterableList()
 
     def extract_templates(self):
-        self.templates = collections.defaultdict(list)
+        self.templates = FilterableList()
+
+    def __str__(self):
+        return u'Page:\n\tData:\n{data}\n\tLinks:\n\t\t{links}\n\tQueries:\n\t\t{queries}\n\tTemplates:\n\t\t{templates}'.format(
+            data=self.data.serialize(format='turtle').decode('utf-8'),
+            links=u'\n\t\t'.join([unicode(l) for l in self.links]),
+            queries=u'\n\t\t'.join([unicode(f) for f in self.queries]),
+            templates=u'\n\t\t'.join([unicode(t) for t in self.templates])).encode('utf-8')
