@@ -7,8 +7,6 @@ from pip.req import parse_requirements
 install_reqs = [str(r.req) for r in parse_requirements('requirements.txt')]
 test_reqs = [str(r.req) for r in parse_requirements('test-requirements.txt')]
 
-print install_reqs
-
 setup(name='hyperspace',
       version='0.0.0',
       description='General-purpose REST/hypermedia client.',
