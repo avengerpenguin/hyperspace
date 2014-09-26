@@ -1,5 +1,6 @@
 from hyperspace.html import HTMLPage
 from hyperspace.hydra import HydraPage
+from hyperspace.turtle import TurtlePage
 import requests
 import cgi
 
@@ -21,7 +22,8 @@ def send(url, data, _):
 
 def mime_to_page(mime, **kwargs):
     return {
-        "text/html": HTMLPage,
+        'text/html': HTMLPage,
         'application/ld+json': HydraPage,
-        }[mime]
+        'text/turtle': TurtlePage,
+    }[mime]
 
