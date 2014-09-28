@@ -31,7 +31,7 @@ class Query(object):
         self.params = params
 
     def build(self, params):
-        for key, value in params.iteritems():
+        for key, value in params.items():
             if key in self.params:
                 self.params[key] = value
             else:
@@ -43,10 +43,10 @@ class Query(object):
     def submit(self):
         """Very naive URL creation."""
         return hyperspace.jump(self.href + '?' + '&'.join(
-            [key + '=' + value for key, value in self.params.iteritems()]))
+            [key + '=' + value for key, value in self.params.items()]))
 
     def __str__(self):
-        flat_params = ', '.join([u'{name}={value}'.format(name=name, value=value) for name, value in self.params.iteritems()])
+        flat_params = ', '.join([u'{name}={value}'.format(name=name, value=value) for name, value in self.params.items()])
 
         return u'[{name}]({href}){{{params}}}'.format(
             name=self.name, href=self.href, params=flat_params)
@@ -59,7 +59,7 @@ class Template(object):
         self.content_type = content_type
 
     def build(self, newparams):
-        for name, value in newparams.iteritems():
+        for name, value in newparams.items():
             self.params[name] = value
         return self
 
@@ -67,7 +67,10 @@ class Template(object):
         return hyperspace.send(self.href, self.params, self.content_type)
 
     def __str__(self):
-        flat_params = u', '.join([u'{name}={value}'.format(name=unicode(name), value=unicode(value)) for name, value in self.params.iteritems()])
+        flat_params = u', '.join(
+            [u'{name}={value}'.format(name=unicode(name), value=unicode(value))
+             for name, value in self.params.items()]
+        )
 
         return u'[{name}]({href}){{{params}}}'.format(
             name=self.name, href=self.href, params=flat_params)

@@ -41,7 +41,9 @@ class LNTest(HypermediaBaseTest):
         # When - We fill in a search form on that page
         page.templates['newuser'][0].build({'name': 'Dennis Felt'}).submit()
         # Then - A POST is received
-        self.assertEqual(httpretty.core.httpretty.latest_requests[-2].body, 'name=Dennis+Felt')
+        self.assertEqual(
+            httpretty.core.httpretty.latest_requests[-2].body.decode('utf-8'),
+            u'name=Dennis+Felt')
 
     def test_handles_redirect_after_update(self):
         fact = (URIRef('http://example.com/users/dennis#id'),

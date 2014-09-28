@@ -1,4 +1,7 @@
-import urlparse
+try:
+    from urllib import parse as urlparse
+except ImportError:
+    import urlparse
 import re
 from bs4 import BeautifulSoup
 from hyperspace.affordances import Page, FilterableList, Link, Query, Template

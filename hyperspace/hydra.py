@@ -17,5 +17,5 @@ class HydraPage(Page):
     def extract_links(self):
         for p, o in self.data.predicate_objects(URIRef(self.url)):
             if isinstance(o, URIRef):
-                link = Link(unicode(p), unicode(o))
+                link = Link(p.toPython(), o.toPython())
                 self.links.append(link)
