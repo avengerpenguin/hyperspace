@@ -9,6 +9,7 @@ test_reqs = [str(r.req) for r in parse_requirements('test-requirements.txt')]
 
 setup(name='hyperspace',
       version='0.0.0',
+      py_modules = ['hyperspace'],
       description='General-purpose REST/hypermedia client.',
       author='Ross Fenning',
       author_email='ross.fenning@gmail.com',
