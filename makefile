@@ -10,7 +10,7 @@ clean:
 	find . -iname '*.pyc' -delete 
 
 venv:
-	virtualenv venv
+	virtualenv -p python3 venv
 
 venv/bin/pip: venv
 
