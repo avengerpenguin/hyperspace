@@ -10,7 +10,7 @@ from rdflib import Graph
 
 class HTMLPage(Page):
     def __init__(self, response):
-        self.soup = BeautifulSoup(response.text)
+        self.soup = BeautifulSoup(response.text, 'html5lib')
         super(HTMLPage, self).__init__(response)
 
     def extract_data(self):

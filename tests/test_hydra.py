@@ -1,8 +1,5 @@
 import unittest
 import httpretty
-from rdflib import URIRef, Literal
-import hyperspace
-from . import HypermediaBaseTest
 from .hfactors import LOTest, LTTest, LNTest
 
 
