@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='hyperspace',
-      version='0.1.0',
+      version='0.2.0',
       packages=['hyperspace'],
       description='General-purpose REST/hypermedia client.',
       author='Ross Fenning',

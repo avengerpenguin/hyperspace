@@ -29,7 +29,9 @@ class LTTest(HypermediaBaseTest):
         # Given - We are on the users home page
         page = hyperspace.jump('http://example.com/users/')
         # When - We fill in a search form on that page
-        results_page = page.queries['search'][0].build({'q': 'fiona'}).submit()
+        for query in page.queries:
+            print(query)
+        results_page = page.queries['#search'][0].build({'q': 'fiona'}).submit()
         # Then - We should get to a results page for that search
         self.assertIn('http://example.com/users/fiona',
                       [link.href for link in results_page.links])

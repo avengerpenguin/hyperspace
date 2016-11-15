@@ -11,6 +11,7 @@ from rdflib import Graph
 class HTMLPage(Page):
     def __init__(self, response):
         self.soup = BeautifulSoup(response.text, 'html5lib')
+        self.queries = FilterableList(base_url=response.url)
         super(HTMLPage, self).__init__(response)
 
     def extract_data(self):
@@ -35,9 +36,7 @@ class HTMLPage(Page):
                 link = Link('UNKNOWN', absolute_href)
                 self.links.append(link)
                 
-
     def extract_queries(self):
-        self.queries = FilterableList()
         for form_tag in self.soup.find_all('form'):
             if 'method' not in form_tag.attrs or form_tag.attrs['method'].lower() == 'get':
                 name = form_tag.get('name', form_tag.get('id', form_tag.get('class', 'UNKNOWN')))
@@ -50,10 +49,12 @@ class HTMLPage(Page):
                         else:
                             params[field_name] = ''
 
+                name = urlparse.urljoin(self.url, '#' + name)
                 href = form_tag.attrs['action'] if 'action' in form_tag.attrs else self.url
                 absolute_href = urlparse.urljoin(self.url, href)
 
-                self.queries.append(Query(name, absolute_href, params))
+                template = absolute_href + '{?' + ','.join(params.keys()) + '}'
+                self.queries.append(Query(name, template))
 
     def extract_templates(self):
         self.templates = FilterableList()

@@ -35,6 +35,7 @@ def response_to_page(response):
 
 
 def jump(url, client=None):
+    print('Jumping: ' + url)
     response = get_client(client).get(url)
     return response_to_page(response)
 

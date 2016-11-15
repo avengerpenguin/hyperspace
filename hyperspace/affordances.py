@@ -1,3 +1,8 @@
+try:
+    from urllib import parse as urlparse
+except ImportError:
+    import urlparse
+from uritemplate import expand
 import hyperspace
 from rdflib import Graph
 import collections
@@ -5,7 +10,15 @@ import requests
 
 
 class FilterableList(list):
+    def __init__(self, base_url=None):
+        self.base_url = base_url
+
     def __getitem__(self, item_name):
+        if self.base_url:
+            item_name = urlparse.urljoin(self.base_url, item_name)
+
+        for item in self:
+            print('Checking {} against {}'.format(item.name, item_name))
         return [item for item in self if item.name == item_name]
 
     def keys(self):
@@ -25,31 +38,29 @@ class Link(object):
 
 
 class Query(object):
-    def __init__(self, name, href, params):
-        self.name = name
-        self.href = href
-        self.params = params
+    def __init__(self, rel, uri_template, base_url=None):
+        self.name = rel
+        self.uri_template = uri_template
+        self.uri = expand(uri_template)
+        self.base_url = base_url
 
     def build(self, params):
-        for key, value in params.items():
-            if key in self.params:
-                self.params[key] = value
-            else:
-                error_message = 'No query param {} exists in current ' \
-                                'query template "{}"'.format(key, self.name)
-                raise KeyError(error_message)
+        self.uri = expand(self.uri_template, **params)
+        if self.base_url:
+            self.uri = urlparse.urljoin(self.base_url, self.uri)
         return self
 
     def submit(self):
         """Very naive URL creation."""
-        return hyperspace.jump(self.href + '?' + '&'.join(
-            [key + '=' + value for key, value in self.params.items()]))
+        return hyperspace.jump(self.uri)
+
+    def __unicode__(self):
+        return self.__str__()
 
     def __str__(self):
-        flat_params = ', '.join([u'{name}={value}'.format(name=name, value=value) for name, value in self.params.items()])
+        return u'[{name}]({href})'.format(
+            name=self.name, href=self.uri_template)
 
-        return u'[{name}]({href}){{{params}}}'.format(
-            name=self.name, href=self.href, params=flat_params)
 
 class Template(object):
     def __init__(self, name, href, params, content_type):
