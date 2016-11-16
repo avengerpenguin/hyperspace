@@ -22,5 +22,6 @@ setup(name='hyperspace',
           'rdflib-jsonld',
           'beautifulsoup4',
           'html5lib',
+          'uritemplate',
       ],
 )
