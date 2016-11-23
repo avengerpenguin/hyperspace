@@ -39,7 +39,7 @@ class HTMLPage(Page):
     def extract_queries(self):
         for form_tag in self.soup.find_all('form'):
             if 'method' not in form_tag.attrs or form_tag.attrs['method'].lower() == 'get':
-                name = form_tag.get('name', form_tag.get('id', form_tag.get('class', 'UNKNOWN')))
+                name = form_tag.get('name', form_tag.get('id', form_tag.get('class', 'UNKNOWN')[0]))
                 params = {}
                 for input_field in form_tag.find_all('input'):
                     if 'name' in input_field.attrs:
@@ -60,17 +60,16 @@ class HTMLPage(Page):
         self.templates = FilterableList()
         for form_tag in self.soup.find_all('form'):
             if 'method' in form_tag.attrs and form_tag.attrs['method'].lower() == 'post':
-                if 'name' in form_tag.attrs:
-                    name = form_tag.attrs['name']
-                    params = {}
-                    for input_field in form_tag.find_all('input'):
-                        if 'name' in input_field.attrs:
-                            field_name = input_field.attrs['name']
-                            if 'value' in input_field.attrs:
-                                params[field_name] = input_field.attrs['value']
-                            else:
-                                params[field_name] = ''
+                name = form_tag.get('name', form_tag.get('id', form_tag.get('class', 'UNKNOWN')[0]))
+                params = {}
+                for input_field in form_tag.find_all('input'):
+                    if 'name' in input_field.attrs:
+                        field_name = input_field.attrs['name']
+                        if 'value' in input_field.attrs:
+                            params[field_name] = input_field.attrs['value']
+                        else:
+                            params[field_name] = ''
 
-                    href = form_tag.attrs['action'] if 'action' in form_tag.attrs else self.url
-                    absolute_href = urlparse.urljoin(self.url, href)
-                    self.templates.append(Template(name, absolute_href, params, 'application/x-www-form-urlencoded'))
+                href = form_tag.attrs['action'] if 'action' in form_tag.attrs else self.url
+                absolute_href = urlparse.urljoin(self.url, href)
+                self.templates.append(Template(name, absolute_href, params, 'application/x-www-form-urlencoded'))

@@ -17,9 +17,14 @@ class FilterableList(list):
         if self.base_url:
             item_name = urlparse.urljoin(self.base_url, item_name)
 
-        for item in self:
-            print('Checking {} against {}'.format(item.name, item_name))
-        return [item for item in self if item.name == item_name]
+        matches = [item for item in self if item.name == item_name]
+        if matches:
+            return matches
+        else:
+            other_names = ','.join({item.name for item in self})
+            raise KeyError(
+                'No item with name "{name}". Available: {other_names}'.format(
+                    name=item_name, other_names=other_names))
 
     def keys(self):
         return set(sorted(item.name for item in self))

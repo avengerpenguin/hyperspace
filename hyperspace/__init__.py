@@ -30,6 +30,8 @@ def get_client(client=None):
 
 
 def response_to_page(response):
+    if 400 <= response.status_code < 500:
+        raise Exception('Client error: ' + str(response.status_code) + ' ' + response.text)
     mime = cgi.parse_header(response.headers['Content-Type'])
     return mime_to_page(mime[0], **mime[1])(response)
 
