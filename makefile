@@ -16,11 +16,8 @@ venv/bin/pip: venv
 
 venv/bin/python: venv
 
-deps: venv/bin/pip requirements.txt
-	venv/bin/pip install -r requirements.txt
-ifneq ($(wildcard test-requirements.txt),) 
-	venv/bin/pip install -r test-requirements.txt
-endif
+deps: venv/bin/pip
+	venv/bin/pip install -e .
 
 test: venv/bin/python deps
 	venv/bin/nosetests

@@ -5,8 +5,7 @@ except ImportError:
 from uritemplate import expand
 import hyperspace
 from rdflib import Graph
-import collections
-import requests
+from laconia import ThingFactory
 
 
 class FilterableList(list):
@@ -23,8 +22,8 @@ class FilterableList(list):
         else:
             other_names = ','.join({item.name for item in self})
             raise KeyError(
-                'No item with name "{name}". Available: {other_names}'.format(
-                    name=item_name, other_names=other_names))
+                'No item with name "{name}". Available: {other_names} (Using base URL: {base})'.format(
+                    name=item_name, other_names=other_names, base=self.base_url))
 
     def keys(self):
         return set(sorted(item.name for item in self))
@@ -104,7 +103,7 @@ class Page(object):
 
     def extract_data(self):
         self.data = Graph()
-        self.data.parse(data=self.response.text)
+        self.data.parse(data=self.response.text, publicID=self.response.url)
 
     def extract_links(self):
         self.links = FilterableList()
@@ -114,6 +113,11 @@ class Page(object):
 
     def extract_templates(self):
         self.templates = FilterableList()
+
+    def entity(self, uri):
+        self.data.bind('schema', 'http://schema.org/', override=True)
+        Thing = ThingFactory(self.data)
+        return Thing(uri)
 
     def __str__(self):
         return u'Page:\n\tData:\n{data}\n\tLinks:\n\t\t{links}\n\tQueries:\n\t\t{queries}\n\tTemplates:\n\t\t{templates}'.format(

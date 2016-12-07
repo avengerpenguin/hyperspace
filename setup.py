@@ -23,5 +23,6 @@ setup(name='hyperspace',
           'beautifulsoup4',
           'html5lib',
           'uritemplate',
+          'laconia',
       ],
 )

@@ -6,7 +6,7 @@ import cgi
 
 
 DEFAULT_HEADERS = {
-    'Accept': 'text/html,application/ld+json,text/turtle',
+    'Accept': 'text/turtle,text/html,application/ld+json',
     'User-Agent': 'Hyperspace (https://github.com/avengerpenguin/hyperspace)'
 }
 
