@@ -7,7 +7,7 @@ clean:
 	rm -rf dist
 	rm -rf venv
 	rm -rf hyperspace.egg-info
-	find . -iname '*.pyc' -delete 
+	find . -iname '*.pyc' -delete
 
 venv:
 	virtualenv -p python3 venv
