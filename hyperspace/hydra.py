@@ -12,7 +12,9 @@ class HydraPage(Page):
         super().__init__(response)
 
     def extract_data(self):
-        self.data.parse(data=self.response.text, format="json-ld", identifier=self.url)
+        self.data.parse(
+            data=self.response.text, format="json-ld", identifier=self.url
+        )
 
     def extract_links(self):
         for p, o in self.data.predicate_objects(URIRef(self.url)):
