@@ -17,7 +17,9 @@ class RDFPage(Page):
 
     def extract_data(self):
         self.data = Graph()
-        self.data.parse(data=self.response.text, format=self.format, publicID=self.url)
+        self.data.parse(
+            data=self.response.text, format=self.format, publicID=self.url
+        )
 
     def extract_links(self):
         for p, o in self.data.predicate_objects(URIRef(self.url)):
