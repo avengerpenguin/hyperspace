@@ -1,9 +1,8 @@
+from rdflib import Graph, Namespace, URIRef
+
 from hyperspace.affordances import FilterableList, Link, Page, Query
-from rdflib import Namespace, Graph, URIRef
-from uritemplate import URITemplate, expand
 
-
-HYDRA = Namespace('http://www.w3.org/ns/hydra/core#')
+HYDRA = Namespace("http://www.w3.org/ns/hydra/core#")
 
 
 class RDFPage(Page):
@@ -14,7 +13,7 @@ class RDFPage(Page):
         self.data = Graph()
         self.links = FilterableList()
         self.queries = FilterableList(base_url=response.url)
-        super(RDFPage, self).__init__(response)
+        super().__init__(response)
 
     def extract_data(self):
         self.data = Graph()
@@ -27,7 +26,8 @@ class RDFPage(Page):
                 self.links.append(link)
 
     def extract_queries(self):
-        rows = self.data.query('''
+        rows = self.data.query(
+            """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX schema: <http://schema.org/>
         PREFIX hydra: <http://www.w3.org/ns/hydra/core#>
@@ -37,7 +37,10 @@ class RDFPage(Page):
             ?action rdf:type hydra:IriTemplate .
             ?action hydra:template ?template .
         }
-        ''')
+        """
+        )
 
         for rel, template in rows:
-            self.queries.append(Query(str(rel), str(template), base_url=self.response.url))
+            self.queries.append(
+                Query(str(rel), str(template), base_url=self.response.url)
+            )
