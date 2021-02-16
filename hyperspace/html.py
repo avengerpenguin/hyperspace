@@ -46,7 +46,8 @@ class HTMLPage(Page):
                 or form_tag.attrs["method"].lower() == "get"
             ):
                 name = form_tag.get(
-                    "name", form_tag.get("id", form_tag.get("class", "UNKNOWN")[0])
+                    "name",
+                    form_tag.get("id", form_tag.get("class", "UNKNOWN")[0]),
                 )
                 params = {}
                 for input_field in form_tag.find_all("input"):
@@ -59,7 +60,9 @@ class HTMLPage(Page):
 
                 name = urlparse.urljoin(self.url, "#" + name)
                 href = (
-                    form_tag.attrs["action"] if "action" in form_tag.attrs else self.url
+                    form_tag.attrs["action"]
+                    if "action" in form_tag.attrs
+                    else self.url
                 )
                 absolute_href = urlparse.urljoin(self.url, href)
 
@@ -74,7 +77,8 @@ class HTMLPage(Page):
                 and form_tag.attrs["method"].lower() == "post"
             ):
                 name = form_tag.get(
-                    "name", form_tag.get("id", form_tag.get("class", "UNKNOWN")[0])
+                    "name",
+                    form_tag.get("id", form_tag.get("class", "UNKNOWN")[0]),
                 )
                 params = {}
                 for input_field in form_tag.find_all("input"):
@@ -86,11 +90,16 @@ class HTMLPage(Page):
                             params[field_name] = ""
 
                 href = (
-                    form_tag.attrs["action"] if "action" in form_tag.attrs else self.url
+                    form_tag.attrs["action"]
+                    if "action" in form_tag.attrs
+                    else self.url
                 )
                 absolute_href = urlparse.urljoin(self.url, href)
                 self.templates.append(
                     Template(
-                        name, absolute_href, params, "application/x-www-form-urlencoded"
+                        name,
+                        absolute_href,
+                        params,
+                        "application/x-www-form-urlencoded",
                     )
                 )

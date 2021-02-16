@@ -87,7 +87,9 @@ class Template:
     def __str__(self):
         flat_params = ", ".join(
             [
-                "{name}={value}".format(name=unicode(name), value=unicode(value))
+                "{name}={value}".format(
+                    name=unicode(name), value=unicode(value)
+                )
                 for name, value in self.params.items()
             ]
         )
