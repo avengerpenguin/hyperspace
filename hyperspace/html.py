@@ -1,9 +1,5 @@
-try:
-    from urllib import parse as urlparse
-except ImportError:
-    import urlparse
-
 import re
+from urllib import parse as urlparse
 
 from bs4 import BeautifulSoup
 from rdflib import Graph

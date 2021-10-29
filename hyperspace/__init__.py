@@ -1,4 +1,5 @@
 import cgi
+from typing import Any, Dict
 
 import requests
 
@@ -12,7 +13,7 @@ DEFAULT_HEADERS = {
 }
 
 
-config = {}
+config: Dict[str, Any] = {}
 
 
 def get_client(client=None):

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from rdflib import Graph, Namespace, URIRef
 
 from hyperspace.affordances import FilterableList, Link, Page, Query
@@ -7,7 +9,7 @@ HYDRA = Namespace("http://www.w3.org/ns/hydra/core#")
 
 class RDFPage(Page):
 
-    format = None
+    format: Optional[str] = None
 
     def __init__(self, response):
         self.data = Graph()
