@@ -4,3 +4,6 @@
 *~
 /dist
 /hyperspace.egg-info
+.direnv
+_version.py
+.eggs

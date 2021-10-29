@@ -14,12 +14,6 @@ class LOTest(HypermediaBaseTest):
         self.assertIn("http://example.com/relations/user", page.links.keys())
 
     def test_follows_links(self):
-        # Given - Information we know should be held about a user
-        fact = (
-            URIRef("http://example.com/users/fiona#id"),
-            URIRef("http://schema.org/name"),
-            Literal("Fiona Bennett"),
-        )
         # When - We visit the users list page
         page = hyperspace.jump("http://example.com/users/")
         # And - Follow the link to the user in question

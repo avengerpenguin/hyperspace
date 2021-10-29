@@ -1,7 +1,4 @@
-try:
-    from urllib import parse as urlparse
-except ImportError:
-    import urlparse
+from urllib import parse as urlparse
 
 from laconia import ThingFactory
 from rdflib import Graph
@@ -87,9 +84,7 @@ class Template:
     def __str__(self):
         flat_params = ", ".join(
             [
-                "{name}={value}".format(
-                    name=unicode(name), value=unicode(value)
-                )
+                f"{str(name)}={str(value)}"
                 for name, value in self.params.items()
             ]
         )
@@ -130,9 +125,9 @@ class Page:
     def __str__(self):
         return "Page:\n\tData:\n{data}\n\tLinks:\n\t\t{links}\n\tQueries:\n\t\t{queries}\n\tTemplates:\n\t\t{templates}".format(
             data=self.data.serialize(format="turtle").decode("utf-8"),
-            links="\n\t\t".join([unicode(l) for l in self.links]),
-            queries="\n\t\t".join([unicode(f) for f in self.queries]),
-            templates="\n\t\t".join([unicode(t) for t in self.templates]),
+            links="\n\t\t".join([str(link) for link in self.links]),
+            queries="\n\t\t".join([str(query) for query in self.queries]),
+            templates="\n\t\t".join([str(tmpl) for tmpl in self.templates]),
         ).encode(
             "utf-8"
         )
