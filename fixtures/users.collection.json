@@ -1,0 +1,16 @@
+{
+    "collection" : {
+        "version": "1.0",
+        "items": [
+            {
+                "href": "http://example.com/users/fiona",
+                "links": [
+                    {
+                        "rel": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+                        "href": "http://schema.org/Person"
+                    }
+                ]
+            }
+        ]
+    }
+}
