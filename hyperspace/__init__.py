@@ -37,7 +37,6 @@ def response_to_page(response):
 
 
 def jump(url, client=None):
-    print('Jumping: ' + url)
     response = get_client(client).get(url)
     return response_to_page(response)
 
@@ -57,3 +56,16 @@ def mime_to_page(mime, **kwargs):
         'text/turtle': TurtlePage,
     }[mime]
 
+
+def git(command, *args, **params):
+    return {
+        'commit': git_commit,
+        'checkout': git_checkout,
+    }[command](*args, **params)
+
+
+def update(uri, _store):
+    print('Updating: ' + uri)
+    response = get_client().put(uri, _store.serialize(format='turtle'), headers={'Content-Type': 'text/turtle'})
+    print(response.text)
+    return response_to_page(response)

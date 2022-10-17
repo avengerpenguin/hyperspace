@@ -31,7 +31,7 @@ class RDFPage(Page):
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX schema: <http://schema.org/>
         PREFIX hydra: <http://www.w3.org/ns/hydra/core#>
-        SELECT ?rel ?template
+        SELECT DISTINCT ?rel ?template
         WHERE {
             ?url ?rel ?action .
             ?action rdf:type hydra:IriTemplate .
